@@ -7,20 +7,21 @@ from PIL import Image, ImageTk
 from tkinter import filedialog
 from pdf2image import convert_from_path
 
-img = Image.new('RGB', (10, 10))
-
-for x in range(10):
-    for y in range(10):
-        r = random.randint(0, 255)
-        g = random.randint(0, 255)
-        b = random.randint(0, 255)
-        img.putpixel((x, y), (r, g, b))
+from typing import Any, Optional
 
 root = tk.Tk()
 root.geometry("960x600")
 root.minsize(960, 600)
 root.state('zoomed')
 root.title("Text Editor To PDF")
+
+img = Image.new('RGB', (10, 10))
+for x in range(10):
+    for y in range(10):
+        r = random.randint(0, 255)
+        g = random.randint(0, 255)
+        b = random.randint(0, 255)
+        img.putpixel((x, y), (r, g, b))
 root.wm_iconphoto(True, ImageTk.PhotoImage(img))
 
 frame = tk.Frame(root)
@@ -32,7 +33,7 @@ line_numbers = tk.Text(frame, width=4, padx=4,
                        state=tk.DISABLED)
 line_numbers.pack(side=tk.LEFT, fill=tk.Y)
 
-fonts = {
+fonts = { # Font character sizes relative to page length
     'Courier': 7,
     'Arial': 5.25,
     'Times': 4.9,
@@ -67,23 +68,56 @@ canvas.bind('<Configure>', lambda e: canvas.configure(
     scrollregion=canvas.bbox('all')))
 
 
-def _on_mousewheel(event=None):
+def _on_mousewheel(event: tk.Event=None) -> None:
+    """
+    This function is a callback function that is used to scroll
+    the canvas vertically when the mousewheel is scrolled.
+    It takes an optional `event` parameter which defaults
+    to `None`.
+
+    Args:
+        event (tk.Event): The event object that contains
+        information about the event. Defaults to None.
+    """
     canvas.yview_scroll(int(-1*(event.delta/120)),
                         "units")
 
 
-def _bound_to_mousewheel(event=None):
+def _bound_to_mousewheel(event: tk.Event=None) -> None:
+    """
+    This function binds the `_on_mousewheel()` function to
+    the mousewheel event on the canvas.
+
+    Args:
+        event (tk.Event): The event object that contains
+        information about the event. Defaults to None.
+    """
     canvas.bind_all("<MouseWheel>", _on_mousewheel)
 
 
-def _unbound_to_mousewheel(event=None):
+def _unbound_to_mousewheel(event: tk.Event=None) -> None:
+    """
+    This function unbinds the `_on_mousewheel()` function
+    from the mousewheel event on the canvas.
+
+    Args:
+        event (tk.Event): The event object that contains
+        information about the event. Defaults to None.
+    """
     canvas.unbind_all("<MouseWheel>")
+
     
 canvas.bind('<Enter>', _bound_to_mousewheel)
 canvas.bind('<Leave>', _unbound_to_mousewheel)
 
 
-def display_pdf(filepath):
+def display_pdf(filepath: str) -> None:
+    """
+    Displays PDF file in the canvas.
+
+    Args:
+    - filepath (str): Path to the PDF file to display.
+    """
     try:
         canvas.delete('all')
         images = convert_from_path(
@@ -103,12 +137,25 @@ def display_pdf(filepath):
         print(e)
 
 
-def on_scroll(*args):
+def on_scroll(*args) -> None:
+    """
+    Scroll both the text and line numbers widgets together.
+
+    Args:
+    - *args: Tuple containing the arguments to pass.
+    """
     line_numbers.yview_moveto(args[0])
     text.yview_moveto(args[0])
 
 
-def update_line_numbers(event=None):
+def update_line_numbers(event=None) -> None:
+    """
+    Updates the line numbers in the line_numbers widget.
+
+    Args:
+    - event (Event): Event object that triggered the call.
+        Defaults to None.
+    """
     line_numbers.config(state=tk.NORMAL,
                         font=(selected_font.get(),
                               selected_size.get()))
@@ -121,7 +168,16 @@ def update_line_numbers(event=None):
                               selected_size.get()))
         
 
-def open_file(*args):
+def open_file(*args: Any) -> None:
+    """
+    Opens a file dialog to select a file and displays
+    the file content on the text editor.
+    Also updates the line numbers and displays the
+    PDF representation of the file.
+
+    Args:
+        *args: Variable length argument list.
+    """
     global filepath
     file_path = filedialog.askopenfilename()
     if not file_path:
@@ -136,7 +192,16 @@ def open_file(*args):
         '.')[0].replace(' ', '_') + '.pdf')
 
 
-def save_file(*args):
+def save_file(*args: Any) -> None:
+    """
+    Saves the content of the text editor to the current
+    file, or prompts the user to select a file to save
+    the content to.
+    Also updates the window title with the filepath.
+
+    Args:
+        *args: Variable length argument list.
+    """
     global filepath
     if 'filepath' not in globals():
         file_path = filedialog.asksaveasfilename(
@@ -151,7 +216,15 @@ def save_file(*args):
     root.title(f"Text Editor To PDF: {filepath}")
 
 
-def save_file_as(*args):
+def save_file_as(*args: Any) -> None:
+    """
+    Prompts the user to select a file to save the
+    content of the text editor to.
+    Also updates the window title with the filepath.
+
+    Args:
+        *args: Variable length argument list.
+    """
     file_path = filedialog.asksaveasfilename(
         defaultextension=".txt")
     if not file_path:
@@ -163,7 +236,11 @@ def save_file_as(*args):
     root.title(f"Text Editor To PDF: {filepath}")
 
 
-def text_to_pdf():
+def text_to_pdf() -> None:
+    """
+    Converts the text in the text editor to a PDF
+    file and saves it.
+    """
     global filepath
 
     save_file()
@@ -202,28 +279,45 @@ def text_to_pdf():
         '.')[0].replace(' ', '_') + '.pdf')
 
 
-def cut(event=None):
+def cut(event: Optional[tk.Event] = None) -> None:
+    """
+    Cut the selected text to the clipboard.
+    """
     text.event_generate("<<Cut>>")
     update_line_numbers()
 
 
-def copy(event=None):
+def copy(event: Optional[tk.Event] = None) -> None:
+    """
+    Copy the selected text to the clipboard.
+    """
     text.event_generate("<<Copy>>")
 
 
-def paste(event=None):
+def paste(event: Optional[tk.Event] = None) -> None:
+    """
+    Paste the contents of the clipboard to the text widget.
+    """
     text.event_generate("<<Paste>>")
     update_line_numbers()
 
 
-def delete_next_word(event=None):
+def delete_next_word(event: Optional[tk.Event] = None
+                     ) -> None:
+    """
+    Delete the word after the current cursor position.
+    """
     pos = text.search(r'\s', tk.INSERT, regexp=True,
                       stopindex=tk.END)
     if pos:
         text.delete(tk.INSERT, pos)
 
 
-def delete_previous_word(event=None):
+def delete_previous_word(event: Optional[tk.Event] = None
+                         ) -> None:
+    """
+    Delete the word before the current cursor position.
+    """
     pos = text.search(r'\s', tk.INSERT, regexp=True,
                       backwards=True)
     if pos:
@@ -232,9 +326,17 @@ def delete_previous_word(event=None):
         text.delete(pos, tk.INSERT)
 
 
-def font_changed(*args):
+def font_changed(*args: Any) -> None:
+    """
+    Callback function for when the font or
+    size is changed in the UI.
+
+    Args:
+        *args: Variable length argument list.
+    """
     text.config(font=(selected_font.get(),
                       selected_size.get()))
+
 
 menu_bar = tk.Menu(root)
 text.config(yscrollcommand=on_scroll)
