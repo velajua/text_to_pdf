@@ -270,13 +270,30 @@ def text_to_pdf() -> None:
             lines[0] = lines[0][2:]
         if len(lines) == 0:
             pdf.ln()
+
         for wrap in lines:
+            if '**' in wrap:
+                pdf.set_font(family=selected_font.get().capitalize(),
+                             style='B', size=fontsize_pt)
+                wrap = wrap.replace('**', '')
+            if '*' in wrap:
+                pdf.set_font(family=selected_font.get().capitalize(),
+                             style='I', size=fontsize_pt)
+                wrap = wrap.replace('*', '')
+            if '_' in wrap:
+                pdf.set_font(family=selected_font.get().capitalize(),
+                             style='U', size=fontsize_pt)
+                wrap = wrap.replace('_', '')
             pdf.cell(0, fontsize_mm, wrap, ln=1)
+            pdf.set_font(family=selected_font.get().capitalize(),
+                         style='', size=fontsize_pt)
+
     pdf.output(
         filepath.split('/')[-1].split(
             '.')[0].replace(' ', '_') + '.pdf', 'F')
     display_pdf(filepath.split('/')[-1].split(
         '.')[0].replace(' ', '_') + '.pdf')
+
 
 
 def cut(event: Optional[tk.Event] = None) -> None:
@@ -338,6 +355,25 @@ def font_changed(*args: Any) -> None:
                       selected_size.get()))
 
 
+def show_formatting(*args: Any) -> None:
+    """
+    Shows a message with the formatting options
+    for the application
+
+    Args:
+        *args: Variable length argument list.
+    """
+    tk.messagebox.showinfo(
+        title='Formatting',
+        message='''
+This application has the following formatting convensions for easy of use:
+
+~# 'Words' : adds # of spaces before the line starting with 'Words'.
+** 'Words' : adds the Bold style to the line starting with 'Words'.
+* 'Words' : adds the Italic style to the line starting with 'Words'.
+_ 'Words' : adds the Underline style to the line starting with 'Words'.
+''')
+
 menu_bar = tk.Menu(root)
 text.config(yscrollcommand=on_scroll)
 line_numbers.config(yscrollcommand=on_scroll)
@@ -375,9 +411,13 @@ file_menu.add_command(label="To PDF", command=text_to_pdf)
 file_menu.add_separator()
 file_menu.add_command(label="Exit", command=root.quit)
 
+help_menu = tk.Menu(menu_bar, tearoff=0)
+help_menu.add_command(label="Formatting", command=show_formatting)
+
 menu_bar.add_cascade(label="File", menu=file_menu)
 menu_bar.add_cascade(label="Fonts", menu=font_menu)
 menu_bar.add_cascade(label="Sizes", menu=size_menu)
+menu_bar.add_cascade(label="Help", menu=help_menu)
 
 text.bind("<Control-x>", cut)
 text.bind("<Control-c>", copy)
