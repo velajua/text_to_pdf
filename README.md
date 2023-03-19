@@ -58,4 +58,3 @@ The help tab of the application shows a message about the formatting styles, whi
 The resulting PDF can be seen as follows:
 
 ![formatting](img/formatting.png "formatting")
-
