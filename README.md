@@ -14,7 +14,7 @@ The following Python libraries are required to be installed before running this 
 You can install them using the pip package manager:
 
 ```python
-pip install tkinter fpdf pillow pdf2image
+pip install -r requirements.txt
 ```
 
 The `poppler` package is also required for converting PDF files to images. On Windows, you can download it from this [website](https://blog.alivate.com.au/poppler-windows/) or find it [here](executable/poppler-0.68.0/) and add the path to the `poppler/bin` folder to the system `PATH` environment variable or place the `poppler` folder in the same folder as the script/executable.
