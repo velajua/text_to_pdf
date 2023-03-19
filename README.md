@@ -52,7 +52,7 @@ The help tab of the application shows a message about the formatting styles, whi
 
 - ~# 'Words' : adds # of spaces before the line starting with 'Words'.
 - ** 'Words' : adds the Bold style to the line starting with 'Words'.
-- * 'Words' : adds the Italic style to the line starting with 'Words'.
+- \* 'Words' : adds the Italic style to the line starting with 'Words'.
 - _ 'Words' : adds the Underline style to the line starting with 'Words'.
 
 The resulting PDF can be seen as follows:
